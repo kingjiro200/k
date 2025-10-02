@@ -48,16 +48,14 @@ h2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
 }
 .camera-feed img {
   width: 100%;
-  max-width: 700px;
+  max-width: 1000px;
   border-radius: 15px;
   border: 3px solid #1e2a38;
   box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   transition: transform 0.3s;
-  margin-bottom: 15px;
 }
 .camera-feed img:hover {
   transform: scale(1.02);
@@ -91,9 +89,9 @@ h2 {
   font-size: 1.3em;
   font-weight: 600;
 }
-.ok { color: #0a7a0a; }
-.warning { color: #b8860b; }
-.error { color: #a30000; }
+.ok { color: #0a7a0a; }       /* เขียว */
+.warning { color: #b8860b; }  /* เหลือง */
+.error { color: #a30000; }    /* แดง */
 
 .btn {
   margin-top: 10px;
@@ -112,12 +110,6 @@ h2 {
 .btn:hover {
   background: #314458;
   transform: translateY(-2px);
-}
-#label-container {
-  margin-top: 15px;
-  font-size: 1.1em;
-  font-weight: bold;
-  color: #1e2a38;
 }
 footer {
   text-align: center;
@@ -139,20 +131,12 @@ footer {
 
 <div class="container">
 
- 
   <div class="card">
     <h2>📹 กล้อง</h2>
     <div class="camera-feed">
-    
       <img src="http://172.20.10.5:81/stream" alt="ESP32-CAM Live Stream">
-
-      <img id="esp32cam" src="http://172.20.10.5/capture" alt="ESP32-CAM Snapshot">
-      <button class="btn" onclick="init()">✅ โหลดโมเดล AI</button>
-      <button class="btn" onclick="captureAndPredict()">📸 Capture & Predict</button>
-      <div id="label-container"></div>
     </div>
   </div>
-
 
   <div class="card">
     <h2>ระบบภายใน</h2>
@@ -160,70 +144,27 @@ footer {
       <div class="status-box">
         <h3>กล้อง</h3>
         <p class="ok">✅ ทำงานปกติ</p>
+        <a href="camera.html" class="btn">สำหรับตรวจสอบ</a>
       </div>
       <div class="status-box">
         <h3>การตรวจจับ AI</h3>
-        <p class="warning" id="ai-status">⚠️ รอตรวจสอบ</p>
+        <p class="warning">⚠️ รอตรวจสอบ</p>
+        <a href="ai.html" class="btn">สำหรับตรวจสอบ</a>
       </div>
       <div class="status-box">
         <h3>มอเตอร์สายพานลำเลียง</h3>
         <p class="ok">✅ ทำงานปกติ</p>
+        <a href="motor.html" class="btn">สำหรับตรวจสอบ</a>
       </div>
+        <div class="status-box">
+        <h3>Ai com </h3>
+        <p class="ok">✅ ทำงานปกติ</p>
+        <a href="aicom.html" class="btn">สำหรับตรวจสอบ</a>
+      </div>
+      
     </div>
   </div>
- <a href="index.html" class="btn">⬅️ กลับไป หน้าหลัก</a>
-</body>
+
 </div>
-
-<footer>
-  ESP32 Monitoring © 2025
-</footer>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-<script>
-  const URL = "https://teachablemachine.withgoogle.com/models/OpwOLDkCh/";
-
-  let model, maxPredictions, labelContainer;
-
-  async function init() {
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
-
-    model = await tmImage.load(modelURL, metadataURL);
-    maxPredictions = model.getTotalClasses();
-
-    labelContainer = document.getElementById("label-container");
-    labelContainer.innerHTML = "";
-    for (let i = 0; i < maxPredictions; i++) {
-      labelContainer.appendChild(document.createElement("div"));
-    }
-
-    document.getElementById("ai-status").textContent = "✅ พร้อมใช้งาน";
-    document.getElementById("ai-status").className = "ok";
-  }
-
-  async function captureAndPredict() {
-    if (!model) {
-      alert("⚠️ กรุณาโหลดโมเดลก่อน");
-      return;
-    }
-
-    const imgElement = document.getElementById("esp32cam");
-    imgElement.src = "http://172.20.10.5/capture?rand=" + Math.random();
-
-    imgElement.onload = async () => {
-      const prediction = await model.predict(imgElement);
-
-      for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction =
-          prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-        labelContainer.childNodes[i].innerHTML = classPrediction;
-      }
-      
-    };
-  }
-</script>
 </body>
 </html>

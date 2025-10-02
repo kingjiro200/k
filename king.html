@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบทั้งหมด - ESP32 Monitoring</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  background: #eef2f7;
+  color: #333;
+}
+header {
+  background: linear-gradient(90deg, #878787, #000000);
+  color: white;
+  text-align: center;
+  padding: 25px 20px;
+  font-size: 1.8em;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  padding: 25px;
+  margin-bottom: 35px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+h2 {
+  margin-top: 0;
+  font-size: 1.4em;
+  color: #1e2a38;
+  margin-bottom: 20px;
+}
+.camera-feed {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.camera-feed img {
+  width: 100%;
+  max-width: 1000px;
+  border-radius: 15px;
+  border: 3px solid #1e2a38;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+.camera-feed img:hover {
+  transform: scale(1.02);
+}
+
+.status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+.status-box {
+  background: linear-gradient(145deg, #ffffff, #f7f9fc);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.status-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+.status-box h3 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #1e2a38;
+  margin-bottom: 10px;
+}
+.status-box p {
+  margin: 8px 0 15px;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+.ok { color: #0a7a0a; }       /* เขียว */
+.warning { color: #b8860b; }  /* เหลือง */
+.error { color: #a30000; }    /* แดง */
+
+.btn {
+  margin-top: 10px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: 0.3s;
+  background: #1e2a38;
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+.btn:hover {
+  background: #314458;
+  transform: translateY(-2px);
+}
+footer {
+  text-align: center;
+  padding: 15px;
+  background: #1e2a38;
+  color: #fff;
+  margin-top: 40px;
+  font-size: 0.9em;
+}
+@media (max-width: 600px) {
+  .camera-feed img {
+    max-width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+<header>ระบบทั้งหมด</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>📹 กล้อง</h2>
+    <div class="camera-feed">
+      <img src="http://172.20.10.5:81/stream" alt="ESP32-CAM Live Stream">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ระบบภายใน</h2>
+    <div class="status">
+      <div class="status-box">
+        <h3>กล้อง</h3>
+        <p class="ok">✅ ทำงานปกติ</p>
+        <a href="camera.html" class="btn">สำหรับตรวจสอบ</a>
+      </div>
+      <div class="status-box">
+        <h3>การตรวจจับ AI</h3>
+        <p class="warning">⚠️ รอตรวจสอบ</p>
+        <a href="ai.html" class="btn">สำหรับตรวจสอบ</a>
+      </div>
+      <div class="status-box">
+        <h3>มอเตอร์สายพานลำเลียง</h3>
+        <p class="ok">✅ ทำงานปกติ</p>
+        <a href="motor.html" class="btn">สำหรับตรวจสอบ</a>
+      </div>
+        <div class="status-box">
+        <h3>Ai com </h3>
+        <p class="ok">✅ ทำงานปกติ</p>
+        <a href="aicom.html" class="btn">สำหรับตรวจสอบ</a>
+      </div>
+      
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

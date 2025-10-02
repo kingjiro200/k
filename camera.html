@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera View - ESP32-CAM</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f9;
+      color: #333;
+    }
+    header {
+      background: #1e2a38;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.2em;
+      color: #444;
+    }
+    .camera-feed img {
+      width: 100%;
+      height: auto;
+      max-width: 1000px;
+      border-radius: 12px;
+      border: 3px solid #1e2a38;
+    }
+    .control-group {
+      margin: 15px 0;
+    }
+    .control-group label {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    input[type=range], select {
+      padding: 5px;
+      font-size: 1em;
+    }
+    .btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #1e2a38;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn:hover {
+      background: #314458;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #1e2a38;
+      color: #fff;
+      margin-top: 40px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <header>📹 Camera Monitoring</header>
+
+  <div class="container">
+    <div class="card">
+      <h2>Live Camera View</h2>
+      <div class="camera-feed">
+        <img id="camImg" src="http://172.20.10.5:81/stream" alt="ESP32-CAM Live Stream">
+      </div>
+      
+      <div class="control-group">
+        <label for="brightness">Brightness:</label>
+        <input type="range" id="brightness" min="-2" max="2" value="0">
+        <button class="btn" onclick="setCamera('brightness', document.getElementById('brightness').value)">Set</button>
+      </div>
+
+      <div class="control-group">
+        <label for="contrast">Contrast:</label>
+        <input type="range" id="contrast" min="-2" max="2" value="0">
+        <button class="btn" onclick="setCamera('contrast', document.getElementById('contrast').value)">Set</button>
+      </div>
+
+      <div class="control-group">
+        <label for="hmirror">H-Mirror:</label>
+        <select id="hmirror">
+          <option value="0">Off</option>
+          <option value="1">On</option>
+        </select>
+        <button class="btn" onclick="setCamera('hmirror', document.getElementById('hmirror').value)">Set</button>
+      </div>
+
+      <div class="control-group">
+        <label for="vflip">V-Flip:</label>
+        <select id="vflip">
+          <option value="0">Off</option>
+          <option value="1">On</option>
+        </select>
+        <button class="btn" onclick="setCamera('vflip', document.getElementById('vflip').value)">Set</button>
+      </div>
+
+      <a href="king.html" class="btn">⬅️ กลับไป หน้าหลัก</a>
+    </div>
+  </div>
+
+  <footer>
+    ESP32-CAM Live Stream © 2025
+  </footer>
+
+  <script>
+    
+    setInterval(() => {
+      document.getElementById('camImg').src = "http://172.20.10.5:81/stream?ts=" + new Date().getTime();
+    }, 1000);
+
+   
+    function setCamera(param, value){
+      fetch(`http://172.20.10.5/control?var=${param}&val=${value}`)
+        .then(response => console.log(`${param} set to ${value}`))
+        .catch(err => console.error(err));
+    }
+  </script>
+</body>
+ 
+</html>

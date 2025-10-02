@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor Conveyor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  background: #eef2f7;
+  color: #333;
+}
+header {
+  background: linear-gradient(90deg, #1e2a38, #3b4a59);
+  color: white;
+  text-align: center;
+  padding: 25px 20px;
+  font-size: 1.8em;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  padding: 25px;
+  margin-bottom: 35px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+h2 {
+  margin-top: 0;
+  font-size: 1.4em;
+  color: #1e2a38;
+  margin-bottom: 20px;
+}
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 25px;
+}
+.status-box {
+  background: linear-gradient(145deg, #ffffff, #f7f9fc);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.status-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+.status-box h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+  color: #1e2a38;
+}
+.status-box p {
+  margin: 8px 0;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+.on { color: #28a745; }
+.off { color: #dc3545; }
+
+/* ปุ่มควบคุมใหญ่ขึ้น */
+.controls button {
+  padding: 20px 40px;
+  margin: 10px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.3em;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+.start { background:#28a745; color:white; }
+.start:hover { background:#218838; transform: translateY(-2px); }
+.stop { background:#dc3545; color:white; }
+.stop:hover { background:#c82333; transform: translateY(-2px); }
+.reset { background:#ffc107; color:white; }
+.reset:hover { background:#e0a800; transform: translateY(-2px); }
+
+/* ปุ่มย้อนกลับ */
+.btn-back {
+  display: inline-block;
+  background: #1e2a38;
+  color: white;
+  font-size: 1.2em;
+  padding: 12px 25px;
+  border-radius: 12px;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  transition: 0.3s;
+}
+.btn-back:hover {
+  background: #314458;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .status-grid { grid-template-columns: 1fr; }
+  .controls button { width: 100%; }
+}
+</style>
+</head>
+<body>
+<header>ระบบมอเตอร์สายพานลำเลียง</header>
+<div class="container">
+
+  <div class="card">
+    <h2>สถานะมอเตอร์</h2>
+    <div class="status-grid">
+      <div class="status-box">
+        <h3>สถานะมอเตอร์</h3>
+        <p id="motorState" class="off">OFF</p>
+      </div>
+      <div class="status-box">
+        <h3>RPM</h3>
+        <p id="motorRPM">0</p>
+      </div>
+      <div class="status-box">
+        <h3>อุณหภูมิ (°C)</h3>
+        <p id="motorTemp">0</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ควบคุมมอเตอร์</h2>
+    <div class="status-grid controls">
+      <button class="start" onclick="sendCmd('START')">Start</button>
+      <button class="stop" onclick="sendCmd('STOP')">Stop</button>
+      <button class="reset" onclick="sendCmd('RESET')">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <a href="king.html" class="btn-back">⬅️ กลับไปหน้าหลัก</a>
+  </div>
+
+</div>
+
+<script>
+let ws = new WebSocket("ws://192.168.1.50:81/"); 
+
+ws.onopen = function() {
+  console.log("Connected to ESP32 WebSocket");
+};
+
+ws.onmessage = function(event) {
+  let data = JSON.parse(event.data);
+  document.getElementById("motorState").innerText = data.state ? "ON" : "OFF";
+  document.getElementById("motorState").className = data.state ? "on" : "off";
+  document.getElementById("motorRPM").innerText = data.rpm;
+  document.getElementById("motorTemp").innerText = data.temp.toFixed(1);
+};
+
+function sendCmd(cmd) {
+  ws.send(cmd);
+}
+</script>
+</body>
+ <a href="king.html" class="btn">⬅️ กลับไป หน้าหลัก</a>
+</body>
+</html>

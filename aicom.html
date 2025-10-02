@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบทั้งหมด - Webcam + AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  background: #eef2f7;
+  color: #333;
+}
+header {
+  background: linear-gradient(90deg, #878787, #000000);
+  color: white;
+  text-align: center;
+  padding: 25px 20px;
+  font-size: 1.8em;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  padding: 25px;
+  margin-bottom: 35px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+h2 {
+  margin-top: 0;
+  font-size: 1.4em;
+  color: #1e2a38;
+  margin-bottom: 20px;
+}
+.camera-feed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+canvas {
+  border-radius: 15px;
+  border: 3px solid #1e2a38;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+}
+.status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+.status-box {
+  background: linear-gradient(145deg, #ffffff, #f7f9fc);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  text-align: center;
+}
+.status-box h3 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #1e2a38;
+  margin-bottom: 10px;
+}
+.status-box p {
+  margin: 8px 0 15px;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+.ok { color: #0a7a0a; }
+.warning { color: #b8860b; }
+.error { color: #a30000; }
+
+#label-container {
+  margin-top: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #1e2a38;
+}
+
+.btn {
+  margin-top: 10px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: 0.3s;
+  background: #1e2a38;
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+.btn:hover {
+  background: #314458;
+  transform: translateY(-2px);
+}
+
+footer {
+  text-align: center;
+  padding: 15px;
+  background: #1e2a38;
+  color: #fff;
+  margin-top: 40px;
+  font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+<header>ระบบทั้งหมด</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>📹 กล้อง + AI ตรวจจับวัตถุ</h2>
+    <div class="camera-feed">
+      <button class="btn" onclick="init()">Start AI</button>
+      <div id="webcam-container"></div>
+      <div id="label-container">⚠️ กำลังโหลดโมเดล...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ระบบภายใน</h2>
+    <div class="status">
+      <div class="status-box">
+        <h3>กล้อง</h3>
+        <p class="ok">✅ ทำงานปกติ</p>
+      </div>
+      <div class="status-box">
+        <h3>การตรวจจับ AI</h3>
+        <p class="ok" id="ai-status">✅ โมเดลพร้อมใช้งาน</p>
+      </div>
+      <div class="status-box">
+        <h3>มอเตอร์สายพานลำเลียง</h3>
+        <p class="ok">✅ ทำงานปกติ</p>
+      </div>
+    </div>
+  </div>
+ <a href="king.html" class="btn">⬅️ กลับไป หน้าหลัก</a>
+</body>
+</div>
+
+<footer>Webcam king</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+<script>
+const URL = "https://teachablemachine.withgoogle.com/models/pFazOhEMN/"; // โมเดลโทรศัพท์ + สมุด
+let model, webcam, labelContainer, maxPredictions;
+
+async function init() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
+
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+
+    webcam = new tmImage.Webcam(320, 320, true);
+    await webcam.setup();
+    await webcam.play();
+    window.requestAnimationFrame(loop);
+
+    document.getElementById("webcam-container").appendChild(webcam.canvas);
+    labelContainer = document.getElementById("label-container");
+    labelContainer.innerHTML = "";
+    for (let i = 0; i < maxPredictions; i++) {
+        labelContainer.appendChild(document.createElement("div"));
+    }
+
+    document.getElementById("ai-status").innerText = "✅ โมเดลพร้อมใช้งาน";
+}
+
+async function loop() {
+    webcam.update();
+    await predict();
+    window.requestAnimationFrame(loop);
+}
+
+async function predict() {
+    const prediction = await model.predict(webcam.canvas);
+    for (let i = 0; i < maxPredictions; i++) {
+        const className = prediction[i].className;
+        const probability = (prediction[i].probability * 100).toFixed(1);
+        labelContainer.childNodes[i].innerText = `${className}: ${probability}%`;
+    }
+}
+</script>
+</body>
+ 
+</html>
